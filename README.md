@@ -21,7 +21,7 @@ and treatment recommendations directly through a low-bandwidth mobile applicatio
 - **📉 Precision Severity Quantification:** Employs **HSV Color Segmentation** algorithms to calculate the exact percentage of leaf tissue damage.
 - **🤖 GenAI Advisory:** Integrates **Google Gemini 2.5 Flash** to generate dynamic, context-aware treatment plans rather than static text.
 - **💰 Economic Impact Estimator:** An algorithmic module that calculates potential **yield loss** and **financial impact (INR)** based on current market rates and disease severity.
-
+---
 ### 📱 User Experience & Tools
 - **🗣️ Multilingual Support:** Provides treatment advice and interface support in **English, Telugu, and Hindi** to assist diverse farming communities.
 - **🗺️ Live Outbreak Mapping:** Visualizes reported disease hotspots on an interactive map using the **Google Maps SDK** to track regional spread.
@@ -57,7 +57,7 @@ source: https://www.kaggle.com/datasets/abdallahalidev/plantvillage-dataset
 5. Economic impact is estimated and displayed
 6. Results are stored for history & outbreak mapping
 
-
+---
 ## 🏗️ System Architecture
 
 The system follows a split-stack client-server architecture:
