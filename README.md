@@ -71,6 +71,9 @@ The confusion matrix below illustrates the classification performance of the **E
 
 </details>
 
+**Result Interpretation:**  
+The model demonstrates strong generalization across multiple crop classes, with minimal confusion among visually similar diseases. These results validate its suitability for real-time mobile-based plant disease diagnosis.
+
 <details>
 <summary><strong>📱 Application Screenshots</strong></summary>
 
@@ -81,7 +84,7 @@ The confusion matrix below illustrates the classification performance of the **E
 
 <p align="center">
   <img src="assets/app_analyze.jpeg" width="45%" />
-  <img src="assets/app_result_prediction.png" width="45%" />
+  <img src="assets/result.png" width="45%" />
 </p>
 
 <p align="center">
@@ -111,15 +114,16 @@ The confusion matrix below illustrates the classification performance of the **E
 
 The system follows a split-stack client-server architecture:
 
-1.  **Frontend:** React Native (React Native (Expo)) for Android/iOS.
+1.  **Frontend:** React Native (Expo) for Android/iOS.
 2.  **Backend:** FastAPI (Python) for asynchronous inference and logic.
 3.  **Database:** NeonDB (Serverless PostgreSQL) for storing user logs and outbreak data.
 4.  **AI Services:**
     * **Diagnosis:** EfficientNetV2B0 (TFLite)
     * **Advisory:** Google Gemini 2.5 Flash API
     * **Severity:** OpenCV (HSV Segmentation)
-![System Architecture](assets/architecture_diagram.png)
-
+<p align="center">
+  <img src="assets/architecture_diagram.png" width="80%" />
+</p>
 ---
 
 ## 📁 Project Structure
