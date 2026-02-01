@@ -55,15 +55,25 @@ The confusion matrix below illustrates the classification performance of the **E
 
 ![Confusion Matrix – EfficientNetV2B0](assets/confusion_matrix.png)
 
-### 📈 Classification Report
-The following metrics were computed using weighted averaging, suitable for multi-class classification with class imbalance.
+### 📈 Classification Report (Summary)
 
-![classification matrix](assets/classification-matrix.png)
+| Metric | Score |
+|------|------|
+| Accuracy | 97.96% |
+| Precision (Weighted) | 97.8% |
+| Recall (Weighted) | 97.9% |
+| F1-score (Weighted) | 97.85% |
+
+<details>
+<summary>📄 View Full Classification Report</summary>
+
+![Classification Matrix](assets/classification-matrix.png)
+
+</details>
 
 ### 📱 Application-Level Results
 The AgroDoctor mobile application successfully integrates AI inference, severity analysis, and advisory generation into a seamless user workflow.
-![login page](assets/login.jpeg)
-![home page](assets/home_page.jpeg)
+![login page](assets/login.jpeg) ![home page](assets/home_page.jpeg)
 ![Disease analyze page](assets/app_analyze.jpeg)
 ![Disease Prediction Result](assets/app_result_prediction.png)
 ![Treatment Recommendation Screen](assets/app_treatment.jpeg)
