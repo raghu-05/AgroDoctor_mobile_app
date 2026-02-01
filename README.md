@@ -62,7 +62,7 @@ source: https://www.kaggle.com/datasets/abdallahalidev/plantvillage-dataset
 
 The system follows a split-stack client-server architecture:
 
-1.  **Frontend:** React Native (Expo SDK 52) for Android/iOS.
+1.  **Frontend:** React Native (React Native (Expo)) for Android/iOS.
 2.  **Backend:** FastAPI (Python) for asynchronous inference and logic.
 3.  **Database:** NeonDB (Serverless PostgreSQL) for storing user logs and outbreak data.
 4.  **AI Services:**
@@ -199,7 +199,7 @@ npx eas build -p android --profile preview
 ```
 - Expo will generate a downloadable APK link.
 
-
+---
 ## 🌍 Deployment Details
 | Component | Deployment                   |
 | --------- | -----------------------------|
@@ -208,8 +208,17 @@ npx eas build -p android --profile preview
 | Database  | NeonDB (Serverless Postgres) |
 | Model     | Loaded via FastAPI backend   |
 
+---
+## 📊 Model Evaluation & Results
+### 🔍 Confusion Matrix
+
+The confusion matrix below illustrates the classification performance of the **EfficientNetV2B0** model across all 38 plant disease classes.
+
+![Confusion Matrix – EfficientNetV2B0](assets/confusion_matrix.png)
 
 
+
+---
 ## 👨‍💻 Developed By
 - Arja Raghuveer
 - AI & Machine Learning Undergraduate | Final Year Project
