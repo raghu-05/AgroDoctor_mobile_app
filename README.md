@@ -1,7 +1,5 @@
 # 🌱 AgroDoctor – AI-Powered Plant Health & Advisory System
 
-![AgroDoctor Banner](assets/icon.jpg)
-
 **AgroDoctor** is a full-stack **AI-powered mobile ecosystem** designed to empower farmers with instant plant disease diagnosis, severity estimation, and multilingual treatment plans.
 
 Built with **React Native (Expo)**, **FastAPI**, and **Deep Learning (EfficientNetV2)**, it bridges the gap between complex agricultural science and accessible mobile technology, specifically addressing challenges like low bandwidth and limited expert access.
