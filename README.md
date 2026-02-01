@@ -6,27 +6,37 @@ Built with **React Native (Expo)**, **FastAPI**, and **Deep Learning (EfficientN
 
 ---
 
+## ❓ Problem Statement
+
+Small and marginal farmers often lack timely access to agricultural experts, 
+leading to delayed disease diagnosis, improper pesticide usage, and severe yield loss.
+AgroDoctor addresses this gap by providing instant, AI-driven plant disease diagnosis 
+and treatment recommendations directly through a low-bandwidth mobile application.
+
+---
 ## 📌 Key Features
 
 ### 🧠 Core AI Services
-- [cite_start]**📷 Instant AI Diagnosis:** Utilizes a lightweight **EfficientNetV2B0** model (97.96% accuracy) to detect **38 diseases** across 14 plant species from leaf images[cite: 12, 75].
-- [cite_start]**📉 Precision Severity Quantification:** Employs **HSV Color Segmentation** algorithms to calculate the exact percentage of leaf tissue damage[cite: 33, 116].
-- [cite_start]**🤖 GenAI Advisory:** Integrates **Google Gemini 2.5 Flash** to generate dynamic, context-aware treatment plans rather than static text[cite: 50, 163].
-- [cite_start]**💰 Economic Impact Estimator:** An algorithmic module that calculates potential **yield loss** and **financial impact (INR)** based on current market rates and disease severity[cite: 125, 158].
+- **📷 Instant AI Diagnosis:** Utilizes a lightweight **EfficientNetV2B0** model (97.96% accuracy) to detect **38 diseases** across 14 plant species from leaf images.
+- **📉 Precision Severity Quantification:** Employs **HSV Color Segmentation** algorithms to calculate the exact percentage of leaf tissue damage.
+- **🤖 GenAI Advisory:** Integrates **Google Gemini 2.5 Flash** to generate dynamic, context-aware treatment plans rather than static text.
+- **💰 Economic Impact Estimator:** An algorithmic module that calculates potential **yield loss** and **financial impact (INR)** based on current market rates and disease severity.
 
 ### 📱 User Experience & Tools
-- [cite_start]**🗣️ Multilingual Support:** Provides treatment advice and interface support in **English, Telugu, and Hindi** to assist diverse farming communities[cite: 209, 210, 226].
-- [cite_start]**🗺️ Live Outbreak Mapping:** Visualizes reported disease hotspots on an interactive map using the **Google Maps SDK** to track regional spread[cite: 58, 204].
-- [cite_start]**📂 Diagnosis History:** Automatically saves and retrieves past scan results (disease, severity, location, timestamp) for long-term crop monitoring[cite: 64, 71].
-- [cite_start]**📄 PDF Report Downloads:** Allows farmers to download comprehensive treatment plans and diagnosis reports as portable PDF documents[cite: 231].
-- [cite_start]**📝 Feedback System:** Integrated mechanism for users to submit feedback on diagnosis accuracy and app experience[cite: 148].
-- [cite_start]**🔐 Secure Authentication:** Implements robust **JWT-based OAuth2** authentication for secure user registration and data privacy[cite: 39, 64].
+- **🗣️ Multilingual Support:** Provides treatment advice and interface support in **English, Telugu, and Hindi** to assist diverse farming communities.
+- **🗺️ Live Outbreak Mapping:** Visualizes reported disease hotspots on an interactive map using the **Google Maps SDK** to track regional spread.
+- **📂 Diagnosis History:** Automatically saves and retrieves past scan results (disease, severity, location, timestamp) for long-term crop monitoring.
+- **📄 PDF Report Downloads:** Allows farmers to download comprehensive treatment plans and diagnosis reports as portable PDF documents.
+- **📝 Feedback System:** Integrated mechanism for users to submit feedback on diagnosis accuracy and app experience.
+- **🔐 Secure Authentication:** Implements robust **JWT-based OAuth2** authentication for secure user registration and data privacy.
 
 ---
 
 ## 🧠 Model Performance
 
 We evaluated multiple architectures on the **PlantVillage** dataset (54k+ images). **EfficientNetV2B0** was selected for its superior parameter efficiency and accuracy.
+Dataset: PlantVillage (38 classes, 54k+ images) 
+source: https://www.kaggle.com/datasets/abdallahalidev/plantvillage-dataset
 
 | Model | Validation Accuracy | Validation Loss |
 |-------|---------------------|-----------------|
@@ -38,13 +48,23 @@ We evaluated multiple architectures on the **PlantVillage** dataset (54k+ images
 
 ---
 
+## 🔄 Application Workflow
+
+1. Farmer captures or uploads a leaf image
+2. FastAPI backend performs disease classification
+3. Severity is calculated using HSV segmentation
+4. Gemini generates a personalized treatment plan
+5. Economic impact is estimated and displayed
+6. Results are stored for history & outbreak mapping
+
+
 ## 🏗️ System Architecture
 
-[cite_start]The system follows a split-stack client-server architecture[cite: 712]:
+The system follows a split-stack client-server architecture:
 
-1.  [cite_start]**Frontend:** React Native (Expo SDK 52) for Android/iOS[cite: 713].
-2.  [cite_start]**Backend:** FastAPI (Python) for asynchronous inference and logic[cite: 719].
-3.  [cite_start]**Database:** NeonDB (Serverless PostgreSQL) for storing user logs and outbreak data[cite: 728].
+1.  **Frontend:** React Native (Expo SDK 52) for Android/iOS.
+2.  **Backend:** FastAPI (Python) for asynchronous inference and logic.
+3.  **Database:** NeonDB (Serverless PostgreSQL) for storing user logs and outbreak data.
 4.  **AI Services:**
     * **Diagnosis:** EfficientNetV2B0 (TFLite)
     * **Advisory:** Google Gemini 2.5 Flash API
@@ -59,7 +79,7 @@ AgroDoctor/
 │
 ├── plant_disease_backend/
 │ ├── app/
-│ │ ├── init.py
+│ │ ├── __init__.py
 │ │ ├── auth.py
 │ │ ├── database.py
 │ │ ├── schemas.py
@@ -85,7 +105,7 @@ AgroDoctor/
 ├── plant_disease_frontend/
 │ ├── app/
 │ │ ├── services/
-│ │ │ ├──api.ts 
+│ │ │ ├── api.ts 
 │ │ ├── _layout.tsx
 │ │ ├── index.tsx
 │ │ ├── profile.tsx
@@ -107,11 +127,6 @@ AgroDoctor/
 │ └── package.json
 │ └── package-lock.json
 │
-│
-├── notebooks/
-│ │ ├── EfficientNetV2B0.ipynb
-│ │ ├── ResNet50V2.ipynb
-│ │ └── CNN.ipynb
 │
 └── README.md
 
@@ -197,4 +212,7 @@ npx eas build -p android --profile preview
 
 ## 👨‍💻 Developed By
 - Arja Raghuveer
-- AI & Machine Learning Student
+- AI & Machine Learning Undergraduate | Final Year Project
+
+## 📜 License
+This project is intended for academic and educational use.
