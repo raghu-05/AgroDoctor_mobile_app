@@ -89,7 +89,12 @@ The model demonstrates strong generalization across multiple crop classes, with 
 
 <p align="center">
   <img src="assets/app_treatment.jpeg" width="45%" />
+  <img src="assets/economic.jpeg" width="45%" />
+</p>
+
+<p align="center">
   <img src="assets/app_outbreak.jpeg" width="45%" />
+  <img src="assets/history.jpeg" width="45%" />
 </p>
 
 <p align="center">
