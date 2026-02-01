@@ -58,7 +58,7 @@ The confusion matrix below illustrates the classification performance of the **E
 ### 📈 Classification Report
 The following metrics were computed using weighted averaging, suitable for multi-class classification with class imbalance.
 
-![classification matrix](assets/classification_matrix.png)
+![classification matrix](assets/classification-matrix.png)
 
 ### 📱 Application-Level Results
 The AgroDoctor mobile application successfully integrates AI inference, severity analysis, and advisory generation into a seamless user workflow.
