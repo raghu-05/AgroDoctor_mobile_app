@@ -62,8 +62,13 @@ The following metrics were computed using weighted averaging, suitable for multi
 
 ### 📱 Application-Level Results
 The AgroDoctor mobile application successfully integrates AI inference, severity analysis, and advisory generation into a seamless user workflow.
-
-
+![login page](assets/login.jpeg)
+![home page](assets/home_page.jpeg)
+![Disease analyze page](assets/app_analyze.jpeg)
+![Disease Prediction Result](assets/app_result_prediction.png)
+![Treatment Recommendation Screen](assets/app_treatment.jpeg)
+![outbreak map page](assets/app_outbreak.jpeg)
+![feedback page](assets/feedback.jpeg)
 
 ---
 
