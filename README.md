@@ -47,6 +47,25 @@ source: https://www.kaggle.com/datasets/abdallahalidev/plantvillage-dataset
 > **Optimization Note:** The original model weights were ~220-250MB. Converting to **TensorFlow Lite (.tflite)** reduced the file size to **12.5 MB**, mitigating "Cold Start" latency on serverless platforms.
 
 ---
+## 📊 Model Evaluation & Results
+This section presents the quantitative evaluation of the proposed EfficientNetV2B0 model along with real-world application results observed in the AgroDoctor mobile app.
+### 🔍 Confusion Matrix
+
+The confusion matrix below illustrates the classification performance of the **EfficientNetV2B0** model across all 38 plant disease classes.
+
+![Confusion Matrix – EfficientNetV2B0](assets/confusion_matrix.png)
+
+### 📈 Classification Report
+The following metrics were computed using weighted averaging, suitable for multi-class classification with class imbalance.
+
+![classification matrix](assets/classification_matrix.png)
+
+### 📱 Application-Level Results
+The AgroDoctor mobile application successfully integrates AI inference, severity analysis, and advisory generation into a seamless user workflow.
+
+
+
+---
 
 ## 🔄 Application Workflow
 
@@ -69,6 +88,7 @@ The system follows a split-stack client-server architecture:
     * **Diagnosis:** EfficientNetV2B0 (TFLite)
     * **Advisory:** Google Gemini 2.5 Flash API
     * **Severity:** OpenCV (HSV Segmentation)
+![System Architecture](assets/architecture_diagram.png)
 
 ---
 
@@ -207,16 +227,6 @@ npx eas build -p android --profile preview
 | Frontend  | Expo / Android APK           |
 | Database  | NeonDB (Serverless Postgres) |
 | Model     | Loaded via FastAPI backend   |
-
----
-## 📊 Model Evaluation & Results
-### 🔍 Confusion Matrix
-
-The confusion matrix below illustrates the classification performance of the **EfficientNetV2B0** model across all 38 plant disease classes.
-
-![Confusion Matrix – EfficientNetV2B0](assets/confusion_matrix.png)
-
-
 
 ---
 ## 👨‍💻 Developed By
