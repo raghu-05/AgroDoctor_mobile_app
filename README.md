@@ -79,6 +79,10 @@ The model demonstrates strong generalization across multiple crop classes, with 
 
 <p align="center">
   <img src="assets/login.jpeg" width="45%" />
+  <img src="assets/register.jpeg" width="45%" />
+</p>
+
+<p align="center">
   <img src="assets/home_page.jpeg" width="45%" />
 </p>
 
