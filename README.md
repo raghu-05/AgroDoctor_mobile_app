@@ -1,4 +1,4 @@
-# 🌱 AgroDoctor – AI-Powered Plant Health & Advisory System
+# 🌱 AgroDoctor-v2 – AI-Powered Plant Health & Advisory System
 
 **AgroDoctor** is a full-stack **AI-powered mobile ecosystem** designed to empower farmers with instant plant disease diagnosis, severity estimation, and multilingual treatment plans.
 
@@ -14,6 +14,25 @@ AgroDoctor addresses this gap by providing instant, AI-driven plant disease diag
 and treatment recommendations directly through a low-bandwidth mobile application.
 
 ---
+
+
+## 🚀 What's New in v2.0?
+AgroDoctor v2.0 represents a major architectural and aesthetic overhaul, transitioning from a prototype to a production-ready ecosystem.
+
+- 🎨 Redesigned Modern UI: A complete interface transformation featuring a Glassmorphism-inspired Dashboard, card-based navigation, and smooth "Hero" animations for a premium user experience.
+
+- 🌗 Adaptive Theme Engine: Native Dark Mode & Light Mode support. The app automatically detects system preferences and adjusts the entire color palette (backgrounds, cards, text) to reduce eye strain for farmers working in different lighting conditions.
+
+- ⚡ Ultra-Lightweight Inference: Switched the backend inference engine from heavy TensorFlow/Keras to TFLite Runtime. This reduces RAM usage by 80% (from ~500MB to ~80MB) and eliminates server "Cold Start" crashes on free-tier hosting platforms like Render.
+
+- 👤 Enhanced User Profile: Now features a visual avatar system, dynamic greeting, and a seamless Secure Logout flow.
+
+- ℹ️ Interactive App Info: Replaced standard system alerts with a custom, branded About Modal that showcases the tech stack, developer credits, and version details in style.
+
+- 📄 PDF Report Generation: Improved the treatment plan export functionality with cleaner formatting and instant sharing capabilities.
+
+---
+
 ## 📌 Key Features
 
 ### 🧠 Core AI Services
@@ -109,30 +128,26 @@ The model demonstrates strong generalization across multiple crop classes, with 
 
 ---
 
-## 🔄 Application Workflow
+## 🏗️ System Architecture & Workflow
 
-1. Farmer captures or uploads a leaf image
-2. FastAPI backend performs disease classification
-3. Severity is calculated using HSV segmentation
-4. Gemini generates a personalized treatment plan
-5. Economic impact is estimated and displayed
-6. Results are stored for history & outbreak mapping
+### Application Data Flow
 
----
-## 🏗️ System Architecture
-
-The system follows a split-stack client-server architecture:
-
-1.  **Frontend:** React Native (Expo) for Android/iOS.
-2.  **Backend:** FastAPI (Python) for asynchronous inference and logic.
-3.  **Database:** NeonDB (Serverless PostgreSQL) for storing user logs and outbreak data.
-4.  **AI Services:**
-    * **Diagnosis:** EfficientNetV2B0 (TFLite)
-    * **Advisory:** Google Gemini 2.5 Flash API
-    * **Severity:** OpenCV (HSV Segmentation)
+graph TD
+    A[User / Farmer] -->|Captures Image| B(React Native App)
+    B -->|Uploads Image| C{FastAPI Backend}
+    C -->|Inference| D[EfficientNetV2 TFLite]
+    C -->|Segmentation| E[OpenCV HSV]
+    D -->|Disease Label| F[Result Processor]
+    E -->|Severity %| F
+    F -->|Prompt Engineering| G[Google Gemini API]
+    G -->|Treatment Plan| C
+    C -->|JSON Response| B
+    C -->|Log Data| H[(NeonDB Postgres)]
+    
 <p align="center">
   <img src="assets/architecture_diagram.png" width="80%" />
 </p>
+
 ---
 
 ## 📁 Project Structure
