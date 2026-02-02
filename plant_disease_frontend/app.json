@@ -2,7 +2,7 @@
   "expo": {
     "name": "AgroDoctor",
     "slug": "plant_disease_frontend",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.jpg",
     "scheme": "plantdiseasefrontend",
@@ -15,9 +15,8 @@
     "android": {
       "package": "com.raghuveer.agrodoctor",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundColor": "#E6F4FE",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/icon.jpg",
+        "backgroundColor": "#ffffff"
       },
       "permissions": [
         "CAMERA",
@@ -37,7 +36,7 @@
 
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/icon.jpg"
     },
 
     "plugins": [
@@ -45,7 +44,7 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/icon.jpg",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",

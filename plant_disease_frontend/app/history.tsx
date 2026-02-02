@@ -1,3 +1,4 @@
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -5,11 +6,13 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  RefreshControl,
+  StatusBar
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
 import api from "./services/api";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useTheme } from "../context/ThemeContext";
 
 type HistoryItem = {
   id: number;
@@ -21,82 +24,115 @@ type HistoryItem = {
 
 const formatDate = (item: any) => {
   if (!item.timestamp && !item.created_at) return "Date not available";
-
   const date = new Date(item.timestamp || item.created_at);
   return isNaN(date.getTime())
     ? "Date not available"
-    : date.toLocaleString();
+    : date.toLocaleDateString() + " • " + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
 
 export default function HistoryScreen() {
   const router = useRouter();
+  const { colors, isDark } = useTheme();
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchHistory = async () => {
+    try {
+      const response = await api.get("/history/me/");
+      // Assuming API returns newest last, reverse to show newest first
+      setHistory(response.data.reverse());
+    } catch (error) {
+      console.log("Failed to fetch history", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const response = await api.get("/history/me/");
-        setHistory(response.data);
-      } catch (error) {
-        console.log("Failed to fetch history", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchHistory();
   }, []);
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>🕘 Diagnosis History</Text>
-        <Text style={styles.subtitle}>
-          Your previously analyzed plant diseases
-        </Text>
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchHistory();
+  }, []);
 
-        {loading ? (
-          <ActivityIndicator
-            size="large"
-            color="#2e7d32"
-            style={{ marginTop: 30 }}
-          />
-        ) : history.length === 0 ? (
-          <Text style={styles.empty}>No diagnosis history found.</Text>
-        ) : (
-          <FlatList
-            data={history}
-            keyExtractor={(item) => item.id.toString()}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 20 }}
-            renderItem={({ item }) => (
-              <View style={styles.card}>
-                <View style={styles.cardHeader}>
-                  <MaterialIcons
-                    name="local-florist"
-                    size={20}
-                    color="#2e7d32"
-                  />
-                  <Text style={styles.disease}>{item.disease_name}</Text>
-                </View>
-
-                <Text style={styles.severity}>
-                  Severity:{" "}
-                  <Text style={styles.severityValue}>{item.severity}</Text>
-                </Text>
-
-                <Text style={styles.date}>{formatDate(item)}</Text>
-              </View>
-            )}
-          />
-        )}
-
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <MaterialIcons name="arrow-back" size={20} color="#fff" />
-          <Text style={styles.backButtonText}>Go Back</Text>
-        </TouchableOpacity>
+  const renderItem = ({ item }: { item: HistoryItem }) => (
+    <View style={[
+      styles.card, 
+      { 
+        backgroundColor: colors.card, 
+        borderColor: isDark ? colors.border : 'transparent',
+        borderWidth: isDark ? 1 : 0
+      }
+    ]}>
+      
+      {/* Icon & Title Row */}
+      <View style={styles.cardHeader}>
+        <View style={[styles.iconBox, { backgroundColor: colors.primary + '15' }]}>
+          <MaterialCommunityIcons name="leaf" size={24} color={colors.primary} />
+        </View>
+        <View style={styles.headerText}>
+          <Text style={[styles.diseaseTitle, { color: colors.text }]}>{item.disease_name}</Text>
+          <Text style={[styles.dateText, { color: colors.icon }]}>{formatDate(item)}</Text>
+        </View>
       </View>
+
+      {/* Severity Badge */}
+      <View style={styles.cardFooter}>
+        <View style={styles.severityContainer}>
+          <Text style={[styles.severityLabel, { color: colors.icon }]}>Severity:</Text>
+          <Text style={[
+            styles.severityValue, 
+            { color: item.severity > 50 ? colors.danger : colors.primary }
+          ]}>
+            {item.severity.toFixed(1)}%
+          </Text>
+        </View>
+        
+        {/* View Details Arrow */}
+        <Ionicons name="chevron-forward" size={20} color={colors.icon} />
+      </View>
+    </View>
+  );
+
+  return (
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
+      
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={[styles.screenTitle, { color: colors.text }]}>Diagnosis History</Text>
+        <View style={{ width: 24 }} />
+      </View>
+
+      {loading ? (
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : (
+        <FlatList
+          data={history}
+          keyExtractor={(item) => item.id.toString()}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <MaterialCommunityIcons name="history" size={60} color={colors.icon} style={{ opacity: 0.5 }} />
+              <Text style={[styles.emptyText, { color: colors.icon }]}>No diagnosis history yet.</Text>
+            </View>
+          }
+          renderItem={renderItem}
+        />
+      )}
     </View>
   );
 }
@@ -104,95 +140,91 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f4f9f4",
   },
-
-  /** Same centering fix as other screens */
-  content: {
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 50,
+    paddingBottom: 15,
+  },
+  backBtn: {
+    padding: 5,
+  },
+  screenTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  loaderContainer: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  listContent: {
     padding: 20,
+    paddingBottom: 40,
   },
-
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    color: "#1b5e20",
-    textAlign: "center",
-    marginBottom: 6,
-  },
-
-  subtitle: {
-    fontSize: 14,
-    color: "#4e6e4e",
-    textAlign: "center",
-    marginBottom: 16,
-  },
-
   card: {
-    backgroundColor: "#ffffff",
-    borderRadius: 14,
-    padding: 14,
-    marginVertical: 8,
-    elevation: 4,
-    shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 3 },
-  },
-
-  cardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 6,
-  },
-
-  disease: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#1b5e20",
-    marginLeft: 6,
-  },
-
-  severity: {
-    fontSize: 14,
-    color: "#555",
-    marginTop: 4,
-  },
-
-  severityValue: {
-    fontWeight: "bold",
-    color: "#2e7d32",
-  },
-
-  date: {
-    fontSize: 12,
-    color: "#757575",
-    marginTop: 6,
-  },
-
-  empty: {
-    textAlign: "center",
-    marginTop: 30,
-    color: "#757575",
-    fontSize: 15,
-  },
-
-  backButton: {
-    flexDirection: "row",
-    backgroundColor: "#2e7d32",
-    paddingVertical: 14,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 10,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
     elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
   },
-
-  backButtonText: {
-    color: "#fff",
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  iconBox: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  headerText: {
+    flex: 1,
+  },
+  diseaseTitle: {
     fontSize: 16,
-    fontWeight: "bold",
-    marginLeft: 8,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  dateText: {
+    fontSize: 12,
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)',
+    paddingTop: 12,
+  },
+  severityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  severityLabel: {
+    fontSize: 14,
+    marginRight: 6,
+  },
+  severityValue: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    marginTop: 100,
+  },
+  emptyText: {
+    marginTop: 15,
+    fontSize: 16,
   },
 });

@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,61 +8,72 @@ import {
   Alert,
   Modal,
   Pressable,
+  ActivityIndicator,
+  StatusBar
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
 import api from "./services/api";
 import { useRouter } from "expo-router";
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useTheme } from "../context/ThemeContext";
 
 export default function UploadScreen() {
+  const router = useRouter();
+  const { colors, isDark } = useTheme();
+  
   const [image, setImage] = useState<string | null>(null);
   const [showPicker, setShowPicker] = useState(false);
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   // 📷 CAMERA
   const openCamera = async () => {
     const permission = await ImagePicker.requestCameraPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert("Permission required", "Camera permission is needed");
+      Alert.alert("Permission Required", "Camera access is needed to take photos.");
       return;
     }
 
     const result = await ImagePicker.launchCameraAsync({
       quality: 1,
-      allowsEditing: false,
+      allowsEditing: true,
+      aspect: [1, 1],
     });
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
     }
+    setShowPicker(false);
   };
 
   // 🖼️ GALLERY
   const openGallery = async () => {
-    const permission =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert("Permission required", "Gallery access is needed");
+      Alert.alert("Permission Required", "Gallery access is needed to pick photos.");
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
+      allowsEditing: true,
+      aspect: [1, 1],
     });
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
     }
+    setShowPicker(false);
   };
 
   // 🔍 ANALYZE
   const analyzePlant = async () => {
     if (!image) {
-      Alert.alert("Error", "Select or capture an image first");
+      Alert.alert("No Image", "Please select or capture a leaf image first.");
       return;
     }
+
+    setLoading(true);
 
     const formData = new FormData();
     formData.append("file", {
@@ -88,49 +100,85 @@ export default function UploadScreen() {
       });
     } catch (error) {
       console.log("Analyze error:", error);
-      Alert.alert("Error", "Failed to analyze image");
+      Alert.alert("Analysis Failed", "Could not process the image. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // 📌 OPEN STYLED PICKER
-  const chooseImageSource = () => {
-    setShowPicker(true);
-  };
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>🌿 Plant Disease Analysis</Text>
-      <Text style={styles.subtitle}>
-        Upload or capture a leaf image to detect disease
-      </Text>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
 
-      <TouchableOpacity style={styles.primaryButton} onPress={chooseImageSource}>
-        <Text style={styles.primaryButtonText}>Pick Leaf Image</Text>
-      </TouchableOpacity>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={[styles.logoCircle, { backgroundColor: '#fff', elevation: 5, shadowColor: '#000', shadowOpacity: 0.1 }]}>
+            <Image 
+              source={require('../assets/images/icon.jpg')} 
+              style={{ width: 60, height: 60, borderRadius: 12 }} 
+              resizeMode="contain"
+            />
+          </View>
+        <Text style={[styles.title, { color: colors.text }]}>Plant Diagnosis</Text>
+        <Text style={[styles.subtitle, { color: colors.icon }]}>
+          Upload a clear image of the affected leaf
+        </Text>
+      </View>
 
-      {image && (
-        <View style={styles.imageCard}>
-          <Image source={{ uri: image }} style={styles.image} />
-        </View>
-      )}
+      {/* Image Preview Area */}
+      <View style={styles.content}>
+        {image ? (
+          <View style={[styles.imageCard, { backgroundColor: colors.card, shadowColor: colors.shadow }]}>
+            <Image source={{ uri: image }} style={styles.image} />
+            <TouchableOpacity 
+              style={[styles.removeBtn, { backgroundColor: colors.card }]} 
+              onPress={() => setImage(null)}
+            >
+              <Ionicons name="close" size={20} color={colors.danger} />
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity 
+            style={[styles.placeholderBox, { borderColor: colors.border, backgroundColor: colors.card }]} 
+            onPress={() => setShowPicker(true)}
+          >
+            <Ionicons name="cloud-upload-outline" size={48} color={colors.primary} />
+            <Text style={[styles.placeholderText, { color: colors.icon }]}>Tap to Upload Image</Text>
+          </TouchableOpacity>
+        )}
+      </View>
 
-      <TouchableOpacity
-        style={[
-          styles.analyzeButton,
-          !image && styles.disabledButton,
-        ]}
-        onPress={analyzePlant}
-        disabled={!image}
-      >
-        <Text style={styles.analyzeButtonText}>Analyze</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => router.back()}
-      >
-        <MaterialIcons name="arrow-back" size={20} color="#fff" />
-        <Text style={styles.backButtonText}>Go Back</Text>
-      </TouchableOpacity>
+      {/* Action Buttons */}
+      <View style={styles.footer}>
+        {image ? (
+          <TouchableOpacity
+            style={[styles.analyzeButton, { backgroundColor: colors.primary }]}
+            onPress={analyzePlant}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <>
+                <MaterialIcons name="search" size={24} color="#fff" style={{ marginRight: 8 }} />
+                <Text style={styles.analyzeButtonText}>Analyze Plant</Text>
+              </>
+            )}
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.primary }]} onPress={() => setShowPicker(true)}>
+            <MaterialIcons name="add-a-photo" size={22} color="#fff" style={{ marginRight: 8 }} />
+            <Text style={styles.primaryButtonText}>Select Image</Text>
+          </TouchableOpacity>
+        )}
+
+        <TouchableOpacity
+          style={[styles.backButton, { backgroundColor: isDark ? '#333' : '#E0E0E0' }]}
+          onPress={() => router.back()}
+        >
+          <Text style={[styles.backButtonText, { color: isDark ? '#fff' : '#333' }]}>Cancel</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* ✅ STYLED IMAGE SOURCE MODAL */}
       <Modal
@@ -139,40 +187,34 @@ export default function UploadScreen() {
         animationType="fade"
         onRequestClose={() => setShowPicker(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Select Image Source</Text>
+        <Pressable style={styles.modalOverlay} onPress={() => setShowPicker(false)}>
+          <View style={[styles.modalContainer, { backgroundColor: colors.card }]}>
+            <Text style={[styles.modalTitle, { color: colors.text }]}>Select Image Source</Text>
 
-            <Pressable
-              style={styles.modalButton}
-              onPress={() => {
-                setShowPicker(false);
-                openCamera();
-              }}
+            <TouchableOpacity
+              style={[styles.modalButton, { backgroundColor: isDark ? '#333' : '#F5F5F5' }]}
+              onPress={openCamera}
             >
-              <MaterialIcons name="photo-camera" size={24} color="#2e7d32" />
-              <Text style={styles.modalButtonText}>Camera</Text>
-            </Pressable>
+              <Ionicons name="camera" size={24} color={colors.primary} />
+              <Text style={[styles.modalButtonText, { color: colors.text }]}>Take Photo</Text>
+            </TouchableOpacity>
 
-            <Pressable
-              style={styles.modalButton}
-              onPress={() => {
-                setShowPicker(false);
-                openGallery();
-              }}
+            <TouchableOpacity
+              style={[styles.modalButton, { backgroundColor: isDark ? '#333' : '#F5F5F5' }]}
+              onPress={openGallery}
             >
-              <MaterialIcons name="photo-library" size={24} color="#2e7d32" />
-              <Text style={styles.modalButtonText}>Gallery</Text>
-            </Pressable>
+              <Ionicons name="images" size={24} color={colors.primary} />
+              <Text style={[styles.modalButtonText, { color: colors.text }]}>Choose from Gallery</Text>
+            </TouchableOpacity>
 
-            <Pressable
-              style={styles.modalCancel}
+            <TouchableOpacity
+              style={[styles.modalCancel, { backgroundColor: isDark ? '#444' : '#EEE' }]}
               onPress={() => setShowPicker(false)}
             >
-              <Text style={styles.modalCancelText}>Cancel</Text>
-            </Pressable>
+              <Text style={[styles.modalCancelText, { color: colors.text }]}>Cancel</Text>
+            </TouchableOpacity>
           </View>
-        </View>
+        </Pressable>
       </Modal>
     </View>
   );
@@ -181,144 +223,159 @@ export default function UploadScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f4f9f4",
     padding: 20,
-    justifyContent: "center",
   },
-
-  title: {
-    fontSize: 26,
-    fontWeight: "bold",
-    color: "#1b5e20",
-    textAlign: "center",
-    marginBottom: 6,
+  header: {
+    marginTop: 40,
+    alignItems: "center",
+    marginBottom: 20,
   },
-
-  subtitle: {
-    fontSize: 14,
-    color: "#4e6e4e",
-    textAlign: "center",
-    marginBottom: 24,
-  },
-
-  primaryButton: {
-    backgroundColor: "#2e7d32",
-    paddingVertical: 14,
-    borderRadius: 10,
-    marginBottom: 16,
-    elevation: 3,
-  },
-
-  primaryButtonText: {
-    color: "#fff",
-    textAlign: "center",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-
-  imageCard: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 8,
-    marginVertical: 16,
-    elevation: 4,
-  },
-
-  image: {
-    width: "100%",
-    height: 220,
-    borderRadius: 10,
-  },
-
-  analyzeButton: {
-    backgroundColor: "#388e3c",
-    paddingVertical: 14,
-    borderRadius: 10,
-    marginTop: 10,
-    elevation: 3,
-  },
-
-  analyzeButtonText: {
-    color: "#fff",
-    textAlign: "center",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-
-  disabledButton: {
-    backgroundColor: "#a5d6a7",
-  },
-
-  /* ===== MODAL STYLES ===== */
-
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
+  iconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     justifyContent: "center",
     alignItems: "center",
+    marginBottom: 15,
   },
-
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  subtitle: {
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  placeholderBox: {
+    height: 250,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    marginTop: 10,
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  imageCard: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 5,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    position: 'relative',
+  },
+  image: {
+    width: "100%",
+    height: 300,
+    borderRadius: 15,
+  },
+  removeBtn: {
+    position: 'absolute',
+    top: -10,
+    right: -10,
+    padding: 8,
+    borderRadius: 20,
+    elevation: 4,
+  },
+  footer: {
+    marginBottom: 20,
+  },
+  primaryButton: {
+    flexDirection: 'row',
+    paddingVertical: 16,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+    elevation: 3,
+  },
+  primaryButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  analyzeButton: {
+    flexDirection: 'row',
+    paddingVertical: 16,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+    elevation: 3,
+  },
+  analyzeButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  backButton: {
+    paddingVertical: 16,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backButtonText: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "flex-end",
+  },
   modalContainer: {
-    width: "85%",
-    backgroundColor: "#fff",
-    borderRadius: 14,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     padding: 20,
-    elevation: 6,
+    paddingBottom: 40,
+    elevation: 10,
   },
-
   modalTitle: {
     fontSize: 18,
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 16,
-    color: "#1b5e20",
+    marginBottom: 20,
   },
-
   modalButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderRadius: 10,
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    borderRadius: 12,
     marginBottom: 10,
-    backgroundColor: "#f1f8e9",
   },
-
   modalButtonText: {
-    marginLeft: 12,
+    marginLeft: 15,
     fontSize: 16,
     fontWeight: "600",
-    color: "#2e7d32",
   },
-
   modalCancel: {
     marginTop: 10,
-    paddingVertical: 12,
-    borderRadius: 10,
-    backgroundColor: "#eeeeee",
+    paddingVertical: 15,
+    borderRadius: 12,
+    alignItems: 'center',
   },
-
   modalCancelText: {
-    textAlign: "center",
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#555",
+    fontSize: 16,
+    fontWeight: "bold",
   },
-  backButton: {
-  flexDirection: "row",
-  backgroundColor: "#9e9e9e",
-  paddingVertical: 14,
-  borderRadius: 10,
-  justifyContent: "center",
-  alignItems: "center",
-  marginTop: 12,
-},
-
-backButtonText: {
-  color: "#fff",
-  fontSize: 16,
-  fontWeight: "bold",
-  marginLeft: 8,
-},
-
+  logoCircle: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
 });

@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -5,21 +6,31 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StatusBar,
+  ActivityIndicator
 } from "react-native";
 import { useRouter } from "expo-router";
-import { useState } from "react";
 import api from "./services/api";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "../context/ThemeContext";
 
 export default function FeedbackScreen() {
   const router = useRouter();
+  const { colors, isDark } = useTheme();
+  
   const [feedback, setFeedback] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const submitFeedback = async () => {
     if (!feedback.trim()) {
-      Alert.alert("Error", "Please enter your feedback");
+      Alert.alert("Empty Feedback", "Please write something before submitting.");
       return;
     }
+
+    setLoading(true);
 
     try {
       // Get logged-in user details
@@ -32,132 +43,163 @@ export default function FeedbackScreen() {
         message: feedback,
       });
 
-      Alert.alert("Thank you!", "Your feedback has been submitted.");
+      Alert.alert(
+        "Thank You!",
+        "Your feedback helps us improve AgroDoctor."
+      );
+      
       setFeedback("");
       router.back();
     } catch (error) {
       console.log("Feedback error:", error);
-      Alert.alert("Error", "Failed to submit feedback");
+      Alert.alert("Submission Failed", "Could not send feedback. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>📝 Feedback</Text>
-        <Text style={styles.subtitle}>
-          Help us improve AgroDoctor by sharing your thoughts
-        </Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
 
-        {/* FEEDBACK CARD */}
-        <View style={styles.card}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        
+        {/* Header Section */}
+        <View style={styles.header}>
+          <View style={[styles.iconCircle, { backgroundColor: colors.primary + '20' }]}>
+            <Ionicons name="chatbox-ellipses" size={36} color={colors.primary} />
+          </View>
+          <Text style={[styles.title, { color: colors.text }]}>We Value Your Feedback</Text>
+          <Text style={[styles.subtitle, { color: colors.icon }]}>
+            Share your experience to help us grow
+          </Text>
+        </View>
+
+        {/* Input Card */}
+        <View style={[
+          styles.card, 
+          { 
+            backgroundColor: colors.card, 
+            borderColor: isDark ? colors.border : 'transparent',
+            borderWidth: isDark ? 1 : 0
+          }
+        ]}>
           <TextInput
-            placeholder="Write your feedback here..."
+            placeholder="Write your suggestions, bugs, or comments here..."
+            placeholderTextColor={colors.icon}
             value={feedback}
             onChangeText={setFeedback}
             multiline
-            style={styles.input}
-            placeholderTextColor="#9e9e9e"
+            style={[styles.input, { color: colors.text, backgroundColor: isDark ? '#2C2C2C' : '#F9F9F9' }]}
           />
         </View>
 
-        {/* SUBMIT BUTTON */}
-        <TouchableOpacity style={styles.primaryButton} onPress={submitFeedback}>
-          <MaterialIcons name="send" size={20} color="#fff" />
-          <Text style={styles.primaryButtonText}>Submit Feedback</Text>
-        </TouchableOpacity>
+        {/* Buttons */}
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity 
+            style={[styles.submitBtn, { backgroundColor: colors.primary }]} 
+            onPress={submitFeedback}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <>
+                <Ionicons name="send" size={20} color="#fff" style={{ marginRight: 8 }} />
+                <Text style={styles.btnText}>Submit Feedback</Text>
+              </>
+            )}
+          </TouchableOpacity>
 
-        {/* BACK BUTTON */}
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <MaterialIcons name="arrow-back" size={20} color="#fff" />
-          <Text style={styles.backButtonText}>Go Back</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+          <TouchableOpacity 
+            style={[styles.cancelBtn, { backgroundColor: isDark ? '#333' : '#E0E0E0' }]} 
+            onPress={() => router.back()}
+          >
+            <Text style={[styles.btnText, { color: isDark ? '#FFF' : '#333' }]}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f4f9f4",
   },
-
-  /** Same centering fix as other pages */
-  content: {
-    flex: 1,
-    justifyContent: "center",
+  scrollContent: {
+    flexGrow: 1,
     padding: 20,
+    justifyContent: 'center',
   },
-
+  header: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  iconCircle: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 15,
+  },
   title: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#1b5e20",
+    marginBottom: 8,
     textAlign: "center",
-    marginBottom: 6,
   },
-
   subtitle: {
-    fontSize: 14,
-    color: "#4e6e4e",
+    fontSize: 16,
     textAlign: "center",
-    marginBottom: 20,
+    paddingHorizontal: 20,
   },
-
   card: {
-    backgroundColor: "#ffffff",
-    borderRadius: 14,
-    padding: 12,
-    marginBottom: 20,
+    borderRadius: 16,
+    padding: 15,
     elevation: 4,
     shadowColor: "#000",
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 3 },
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    marginBottom: 25,
   },
-
   input: {
-    minHeight: 140,
+    minHeight: 180,
     textAlignVertical: "top",
-    fontSize: 15,
-    color: "#212121",
+    fontSize: 16,
+    padding: 15,
+    borderRadius: 12,
   },
-
-  primaryButton: {
+  buttonContainer: {
+    gap: 15,
+  },
+  submitBtn: {
     flexDirection: "row",
-    backgroundColor: "#2e7d32",
-    paddingVertical: 14,
-    borderRadius: 10,
+    height: 55,
+    borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
     elevation: 3,
-    marginBottom: 10,
+    shadowColor: "#2E7D32",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
   },
-
-  primaryButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-    marginLeft: 8,
-  },
-
-  backButton: {
-    flexDirection: "row",
-    backgroundColor: "#9e9e9e",
-    paddingVertical: 14,
-    borderRadius: 10,
+  cancelBtn: {
+    height: 55,
+    borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
   },
-
-  backButtonText: {
-    color: "#fff",
+  btnText: {
     fontSize: 16,
     fontWeight: "bold",
-    marginLeft: 8,
+    color: "#fff",
   },
 });

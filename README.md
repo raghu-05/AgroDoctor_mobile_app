@@ -15,7 +15,6 @@ and treatment recommendations directly through a low-bandwidth mobile applicatio
 
 ---
 
-
 ## 🚀 What's New in v2.0?
 AgroDoctor v2.0 represents a major architectural and aesthetic overhaul, transitioning from a prototype to a production-ready ecosystem.
 
@@ -128,22 +127,27 @@ The model demonstrates strong generalization across multiple crop classes, with 
 
 ---
 
-## 🏗️ System Architecture & Workflow
+## 🔄 Application Workflow
 
-### Application Data Flow
+1. Farmer captures or uploads a leaf image
+2. FastAPI backend performs disease classification
+3. Severity is calculated using HSV segmentation
+4. Gemini generates a personalized treatment plan
+5. Economic impact is estimated and displayed
+6. Results are stored for history & outbreak mapping
 
-graph TD
-    A[User / Farmer] -->|Captures Image| B(React Native App)
-    B -->|Uploads Image| C{FastAPI Backend}
-    C -->|Inference| D[EfficientNetV2 TFLite]
-    C -->|Segmentation| E[OpenCV HSV]
-    D -->|Disease Label| F[Result Processor]
-    E -->|Severity %| F
-    F -->|Prompt Engineering| G[Google Gemini API]
-    G -->|Treatment Plan| C
-    C -->|JSON Response| B
-    C -->|Log Data| H[(NeonDB Postgres)]
-    
+---
+## 🏗️ System Architecture
+
+The system follows a split-stack client-server architecture:
+
+1.  **Frontend:** React Native (Expo) for Android/iOS.
+2.  **Backend:** FastAPI (Python) for asynchronous inference and logic.
+3.  **Database:** NeonDB (Serverless PostgreSQL) for storing user logs and outbreak data.
+4.  **AI Services:**
+    * **Diagnosis:** EfficientNetV2B0 (TFLite)
+    * **Advisory:** Google Gemini 2.5 Flash API
+    * **Severity:** OpenCV (HSV Segmentation)
 <p align="center">
   <img src="assets/architecture_diagram.png" width="80%" />
 </p>
